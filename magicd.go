@@ -50,9 +50,9 @@ func processMessage(c *magichome.Controller, msg mqtt.Message) error {
 		v, err = strconv.Atoi(string(msg.Payload()))
 		if err != nil { break }
 		err = c.SetColor(magichome.Color{
-			R: uint8(v),
-			G: uint8(v),
-			B: uint8(v),
+			R: uint8(v*255/100),
+			G: uint8(v*255/100),
+			B: uint8(v*255/100),
 			W: 0,
 		})
 	default:
@@ -123,19 +123,17 @@ type Conf struct {
 * @return                     The created MHController
 */
 func addController(client mqtt.Client, mhcfg MHControllerConfig) MHController {
-	port, err := strconv.ParseUint(mhcfg.Port, 10, 64)
+	port, _ := strconv.ParseUint(mhcfg.Port, 10, 64)
 	mh := MHController {
 		ip:    net.ParseIP(mhcfg.Ip),
 		port:  uint16(port),
 	}
 
-	c, err := magichome.New(mh.ip, mh.port)
-	checkError(err)
-
-	mh.c = c
 	topic := fmt.Sprintf("light/%s/#", mhcfg.Name)
 	client.Subscribe(topic, 1, mqttMessageHandler(&mh))
 
+	c, _ := magichome.New(mh.ip, mh.port)
+	mh.c = c
 	return mh
 }
 
@@ -184,7 +182,9 @@ func main() {
 
 	// And finaly close the connection to LED Strip Controller
 	for _, mh := range mhctrls {
-		mh.c.Close()
+		if mh.c != nil {
+			mh.c.Close()
+		}
 	}
 
 	client.Disconnect(250)
