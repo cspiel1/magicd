@@ -1,1 +1,1 @@
-GOOS=linux GOARCH=arm go build -o magicd
+GOOS=linux GOARCH=arm go build -o arm/magicd

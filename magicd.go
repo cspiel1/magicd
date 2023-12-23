@@ -143,16 +143,16 @@ func addController(client mqtt.Client, mhcfg MHControllerConfig) MHController {
 func main() {
 	var rc    = ".magicdrc"
 
-	file, err := ioutil.ReadFile(".magicdrc")
+	file, err := ioutil.ReadFile(rc)
 	if err != nil {
-		fmt.Println("Could not read .magicdrc\n", err)
+		fmt.Println("Could not read %s\n", rc, err)
 		os.Exit(1)
 	}
 
 	var cfg Conf
 	err = json.Unmarshal(file, &cfg)
 	if err != nil {
-		fmt.Println("Wrong format .magicdrc\n", err)
+		fmt.Println("Wrong format %s\n", rc, err)
 		os.Exit(1)
 	}
 
