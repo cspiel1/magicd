@@ -141,6 +141,7 @@ func addController(client mqtt.Client, mhcfg MHControllerConfig) MHController {
 
 
 func main() {
+	var rc    = ".magicdrc"
 
 	file, err := ioutil.ReadFile(".magicdrc")
 	if err != nil {
@@ -166,15 +167,15 @@ func main() {
 	opts.OnConnectionLost = connectLostHandler
 	client := mqtt.NewClient(opts)
 
+	if token := client.Connect(); token.Wait() {
+		checkError(token.Error())
+	}
+
 	var mhctrls []MHController
 	for _ , c := range cfg.Controllers {
 		fmt.Printf("   magic home controller: %s %s:%s\n",
 		c.Name, c.Ip, c.Port)
 		mhctrls = append(mhctrls, addController(client, c))
-	}
-
-	if token := client.Connect(); token.Wait() {
-		checkError(token.Error())
 	}
 
 	fmt.Printf("BEGIN\n")
